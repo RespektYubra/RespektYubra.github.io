@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Loot - Corporation</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --panel-bg: white;
+            --panel-shadow: rgba(0,0,0,0.1);
+            --primary-color: #2c3e50;
+            --primary-border: #3498db;
+            --secondary-bg: #f0f7ff;
+            --button-bg: #3498db;
+            --button-hover: #2980b9;
+            --clear-button: #e74c3c;
+            --clear-hover: #c0392b;
+            --transfer-bg: #e8f8f5;
+            --transfer-border: #2ecc71;
+            --command-bg: #b6b6b6;
+            --command-hover: #f5d5d1;
+            --summary-bg: #f9f9f9;
+            --table-header: #f2f2f2;
+            --table-hover: #f5f5f5;
+            --disabled-text: #999;
+            --profit-bg: #d4edda;
+            --profit-text: #155724;
+            --profit-border: #d4edda;
+            --waste-bg: #f8d7da;
+            --waste-text: #721c24;
+            --waste-border: #f8d7da;
+            --history-bg: #f8f9fa;
+            --history-border: #ddd;
+            --current-bg: #e6f7ff;
+        }
+
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --panel-bg: #2d2d2d;
+            --panel-shadow: rgba(0,0,0,0.3);
+            --primary-color: #3498db;
+            --primary-border: #2980b9;
+            --secondary-bg: #1e3a5f;
+            --button-bg: #2980b9;
+            --button-hover: #3498db;
+            --clear-button: #c0392b;
+            --clear-hover: #e74c3c;
+            --transfer-bg: #1e3e3e;
+            --transfer-border: #2ecc71;
+            --command-bg: #4a4a4a;
+            --command-hover: #5a5a5a;
+            --summary-bg: #333333;
+            --table-header: #3d3d3d;
+            --table-hover: #4a4a4a;
+            --disabled-text: #777;
+            --profit-bg: #1e4530;
+            --profit-text: #a3e9b9;
+            --profit-border: #1e4530;
+            --waste-bg: #4a1e2a;
+            --waste-text: #f5a3b9;
+            --waste-border: #4a1e2a;
+            --history-bg: #2d2d2d;
+            --history-border: #444;
+            --current-bg: #1e3e5f;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Restante do seu CSS permanece o mesmo, apenas substitua as cores hardcoded pelas variáveis */
+        .container {
+            display: flex;
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .panel {
+            flex: 1;
+            background-color: var(--panel-bg);
+            border-radius: 6px;
+            box-shadow: 0 1px 5px var(--panel-shadow);
+            padding: 15px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-border);
+            padding-bottom: 8px;
+            margin: 0 0 10px 0;
+            font-size: 1.4em;
+        }
+        .instructions {
+            font-size: 0.9em;
+            color: var(--text-color);
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: var(--secondary-bg);
+            border-radius: 5px;
+            border-left: 3px solid var(--primary-border);
+        }
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            margin: 5px 0 10px 0;
+            padding: 8px;
+            border: 1px solid var(--table-header);
+            border-radius: 4px;
+            font-family: monospace;
+            box-sizing: border-box;
+            font-size: 0.9em;
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            font-size: 0.9em;
+        }
+        button:hover {
+            background-color: var(--button-hover);
+        }
+        button.clear {
+            background-color: var(--clear-button);
+        }
+        button.clear:hover {
+            background-color: var(--clear-hover);
+        }
+        .result-container {
+            max-height: 100%;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .transfer {
+            margin: 8px 0;
+            padding: 8px;
+            background-color: var(--transfer-bg);
+            border-radius: 4px;
+            border-left: 3px solid var(--transfer-border);
+            font-size: 1em;
+        }
+        .transfer-command {
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-top: 4px;
+            display: inline-block;
+            background-color: var(--command-bg);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .transfer-command:hover {
+            background-color: var(--command-hover);
+        }
+        .summary {
+            margin-top: 12px;
+            padding: 8px;
+            background-color: var(--summary-bg);
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .players-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        .players-table th, .players-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--table-header);
+        }
+        .players-table th {
+            background-color: var(--table-header);
+        }
+        .players-table tr:hover {
+            background-color: var(--table-hover);
+        }
+        .disabled-player {
+            color: var(--disabled-text);
+        }
+        .add-player-form {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--summary-bg);
+            border-radius: 4px;
+        }
+        .add-player-form input {
+            padding: 6px;
+            margin-right: 5px;
+            border: 1px solid var(--table-header);
+            border-radius: 4px;
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+        }
+        .checkbox-active {
+            cursor: pointer;
+            transform: scale(1.2);
+        }
+        .new-player-inputs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+        .new-player-inputs input {
+            flex: 1;
+            min-width: 0;
+        }
+        .profit-input {
+            width: 80px;
+            padding: 4px;
+            border: 1px solid var(--profit-border);
+            border-radius: 3px;
+            margin-left: 5px;
+            background-color: var(--profit-bg);
+            color: var(--profit-text);
+        }
+        .waste-input {
+            width: 80px;
+            padding: 4px;
+            border: 1px solid var(--waste-border);
+            border-radius: 3px;
+            margin-left: 5px;
+            background-color: var(--waste-bg);
+            color: var(--waste-text);
+        }
+        
+        /* Adiciona estilos para a seção de histórico */
+        .history-section {
+            background: var(--history-bg);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid var(--history-border);
+        }
+        
+        .history-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th, .history-table td {
+            padding: 8px;
+            border: 1px solid var(--history-border);
+            text-align: left;
+        }
+        
+        .history-table th {
+            background-color: var(--table-header);
+        }
+        
+        .history-table tr:hover {
+            background-color: var(--table-hover);
+        }
+        
+        .current-calculation {
+            background-color: var(--current-bg) !important;
+        }
+        
+        .small-btn {
+            padding: 3px 8px;
+            font-size: 0.8em;
+        }
+        
+        /* Toggle switch para tema escuro/claro */
+        .theme-switch {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 100;
+        }
+        
+        .theme-switch label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .panel {
+                padding: 12px;
+            }
+            .profit-input, .waste-input {
+                width: 60px;
+                font-size: 0.8em;
+                padding: 3px;
+                margin-left: 3px;
+            }
+            .players-table th, .players-table td {
+                padding: 6px 4px;
+                font-size: 0.8em;
+            }
+            .add-player-form input {
+                width: 60px !important;
+                margin-bottom: 5px;
+                font-size: 0.8em;
+            }
+            .add-player-form {
+                padding: 0px;
+            }
+            .add-player-form button {
+                padding: 6px 8px;
+                font-size: 0.8em;
+            }
+            .transfer-command {
+                font-size: 0.9em;
+                word-break: break-all;
+                white-space: normal;
+            }
+            .transfer {
+                font-size: 0.9em;
+            }
+            .player-name {
+                max-width: 80px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .theme-switch {
+                position: static;
+                margin-bottom: 15px;
+                display: flex;
+                justify-content: flex-end;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profit-input, .waste-input {
+                width: 30px;
+            }
+            .players-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            .add-player-form input {
+                width: 50px !important;
+            }
+            .new-player-inputs input {
+                flex: 1 1 calc(50% - 5px);
+            }
+            .player-name {
+                max-width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Adiciona o toggle switch para tema escuro/claro -->
+    <div class="theme-switch">
+        <label>
+            <span id="theme-label">Modo Escuro</span>
+            <div class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </div>
+        </label>
+    </div>
+    
+    <div class="container">
+        <div class="panel">
+            <div class="instructions">
+                <strong>Como usar:</strong><br>
+                1. Cole o clipboard da party do Tibia no campo abaixo<br>
+                2. Clique em "Calcular Transferências"<br>
+                3. Os resultados aparecerão à direita<br>
+                4. Você pode editar a lista de players antes de calcular<br>
+                5. Adicione lucros extras (profit) no campo verde e gastos (waste) no campo vermelho<br>
+                6. Clique nas linhas "transfer" para copiá-las
+            </div>
+            <textarea id="sessionData" placeholder="Cole os dados da sessão aqui..."></textarea>
+            <div class="button-container">
+                <button onclick="parseData()">Calcular Transferências</button>
+                <button class="clear" onclick="clearTextarea()">Limpar</button>
+            </div>
+            
+            <div id="playersTableContainer" style="display: none;">
+                <table class="players-table" id="playersTable">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Balance</th>
+                            <th>Profit (+)</th>
+                            <th>Waste (-)</th>
+                            <th>Ativo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playersTableBody"></tbody>
+                </table>
+                
+                <div class="add-player-form">
+                    <h3>Adicionar Player Manualmente</h3>
+                    <div class="new-player-inputs">
+                        <input type="text" id="newPlayerName" placeholder="Nome">
+                        <input type="text" id="newPlayerBalance" placeholder="Balance">    
+                        <input type="text" id="newPlayerProfit" placeholder="Profit" class="profit-input">
+                        <input type="text" id="newPlayerWaste" placeholder="Waste" class="waste-input">
+                    </div>
+                    <button onclick="addManualPlayer()">Add</button>
+                </div>
+            </div>
+            
+            <!-- Nova seção de histórico -->
+            <div class="history-section" style="margin-top: 20px;">
+                <h3>Histórico de Cálculos</h3>
+                <div class="history-controls">
+                    <button onclick="loadHistory()">Atualizar Histórico</button>
+                    <button onclick="clearHistory()" class="clear">Limpar Histórico</button>
+                </div>
+                <div id="historyContainer" style="max-height: 300px; overflow-y: auto; margin-top: 10px;">
+                    <table class="history-table" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>Data/Hora</th>
+                                <th>Total</th>
+                                <th>Players</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div id="result" style="display: none;">
+                <div class="result-container">
+                    <div id="transfers"></div>
+                    <div id="summary" class="summary"></div>
+                </div>
+            </div>
+            <div id="empty-result" style="text-align: center; padding: 15px; color: var(--disabled-text); font-size: 0.9em;">
+                Os resultados aparecerão aqui após o cálculo
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let players = [];
+        let currentCalculationId = null;
+        
+        // Ao carregar a página, carrega o histórico e o tema salvo
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
+            loadThemePreference();
+            
+            // Adiciona evento ao toggle
+            document.getElementById('theme-toggle').addEventListener('change', function() {
+                toggleTheme(this.checked);
+            });
+        });
+        
+        // Funções para gerenciar o tema
+        function loadThemePreference() {
+            const darkModeEnabled = localStorage.getItem('darkMode') === 'true';
+            document.getElementById('theme-toggle').checked = darkModeEnabled;
+            toggleTheme(darkModeEnabled);
+        }
+        
+        function toggleTheme(enableDark) {
+            if (enableDark) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-label').textContent = 'Dark Mode';
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('theme-label').textContent = 'Dark Mode';
+                localStorage.setItem('darkMode', 'false');
+            }
+        }
+        
+        function abbreviateName(name, maxLength = 20) {
+            return name.length > maxLength ? name.substring(0, maxLength-1) + '.' : name;
+        }
+        
+        function parseData() {
+            const data = document.getElementById('sessionData').value;
+            if (!data.trim()) {
+                alert("Por favor, cole os dados da sessão");
+                return;
+            }
+
+            try {
+                // Parse dos jogadores e seus balances
+                const lines = data.split('\n');
+                players = [];
+                let currentPlayer = null;
+                let lineCount = 0;
+
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine === '') continue;
+                    
+                    if (!line.startsWith('\t') && !line.startsWith('    ') && 
+                        !trimmedLine.match(/^(Session|Loot Type|Loot|Supplies|Balance)/)) {
+                        currentPlayer = {
+                            name: trimmedLine,
+                            balance: 0,
+                            profit: 0,
+                            waste: 0,
+                            lineCount: 0,
+                            active: true
+                        };
+                        players.push(currentPlayer);
+                        lineCount = 0;
+                    } 
+                    else if (currentPlayer) {
+                        lineCount++;
+                        if (lineCount === 3) {
+                            const balanceMatch = line.match(/Balance:\s*([\d,.+-]+)/);
+                            if (balanceMatch) {
+                                currentPlayer.balance = cleanNumber(balanceMatch[1]);
+                            }
+                        }
+                    }
+                }
+
+                if (players.length < 2) {
+                    alert("É necessário pelo menos 2 jogadores para calcular transferências");
+                    return;
+                }
+
+                // Mostra a tabela de players
+                displayPlayersTable();
+                
+                // Calcula automaticamente
+                calculate();
+                
+            } catch (error) {
+                alert("Erro ao processar os dados: " + error.message);
+                console.error(error);
+            }
+        }
+        
+        function displayPlayersTable() {
+            const tableBody = document.getElementById('playersTableBody');
+            tableBody.innerHTML = '';
+            
+            // Verifica se é uma tela pequena
+            const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+            
+            players.forEach((player, index) => {
+                const row = document.createElement('tr');
+                if (!player.active) {
+                    row.classList.add('disabled-player');
+                }
+                
+                // Aplica abreviação apenas na tabela de players
+                const displayName = isSmallScreen ? abbreviateName(player.name) : player.name;
+                
+                row.innerHTML = `
+                    <td class="player-name" title="${player.name}">${displayName}</td>
+                    <td>${formatNumber(player.balance)} gp</td>
+                    <td>
+                        <input type="text" class="profit-input" value="${player.profit || 0}" 
+                            onchange="updateProfit(${index}, this.value)" placeholder="0">
+                    </td>
+                    <td>
+                        <input type="text" class="waste-input" value="${player.waste || 0}" 
+                            onchange="updateWaste(${index}, this.value)" placeholder="0">
+                    </td>
+                    <td>
+                        <input type="checkbox" class="checkbox-active" ${player.active ? 'checked' : ''} 
+                            onchange="togglePlayer(${index}, this.checked)">
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            document.getElementById('playersTableContainer').style.display = 'block';
+        }
+        
+        function updateProfit(index, value) {
+            players[index].profit = cleanNumber(value) || 0;
+            calculate(); // Atualiza automaticamente o cálculo
+        }
+        
+        function updateWaste(index, value) {
+            players[index].waste = cleanNumber(value) || 0;
+            calculate(); // Atualiza automaticamente o cálculo
+        }
+        
+        function togglePlayer(index, isActive) {
+            players[index].active = isActive;
+            calculate(); // Atualiza automaticamente o cálculo
+        }
+        
+        function formatNumberInput(inputElement) {
+        // Remove todos os pontos existentes
+        let value = inputElement.value.replace(/\./g, '');
+        
+        // Se for um número válido, formata com pontos
+        if (!isNaN(value) && value !== '') {
+            inputElement.value = parseInt(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+    }
+
+        function cleanNumber(numStr) {
+            return parseInt(numStr.replace(/[.,]/g, '')) || 0;
+        }
+
+        // ... (no final do código existente, adicione os event listeners para os inputs)
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
+            loadThemePreference();
+            
+            // Adiciona evento ao toggle
+            document.getElementById('theme-toggle').addEventListener('change', function() {
+                toggleTheme(this.checked);
+            });
+
+            // Adiciona os event listeners para formatar os inputs automaticamente
+            document.getElementById('sessionData').addEventListener('input', function(e) {
+                // Não formatamos o textarea principal
+            });
+
+            // Adiciona listeners para os inputs de números
+            const numberInputs = [
+                'newPlayerBalance', 'newPlayerProfit', 'newPlayerWaste'
+            ];
+
+            numberInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        formatNumberInput(this);
+                    });
+
+                    // Formata o valor inicial se existir
+                    if (input.value) {
+                        formatNumberInput(input);
+                    }
+                }
+            });
+
+            // Adiciona listener para a tabela de players (inputs dinâmicos)
+            document.getElementById('playersTableContainer').addEventListener('input', function(e) {
+                if (e.target.classList.contains('profit-input') || 
+                    e.target.classList.contains('waste-input')) {
+                    formatNumberInput(e.target);
+                }
+            });
+        });
+
+        function addManualPlayer() {
+            const nameInput = document.getElementById('newPlayerName');
+            const balanceInput = document.getElementById('newPlayerBalance');
+            const profitInput = document.getElementById('newPlayerProfit');
+            const wasteInput = document.getElementById('newPlayerWaste');
+            
+            const name = nameInput.value.trim();
+            const balance = cleanNumber(balanceInput.value.trim());
+            const profit = cleanNumber(profitInput.value.trim()) || 0;
+            const waste = cleanNumber(wasteInput.value.trim()) || 0;
+            
+            if (!name) {
+                alert("Por favor, insira o nome do player");
+                return;
+            }
+            
+            if (isNaN(balance)) {
+                alert("Por favor, insira um balance válido");
+                return;
+            }
+            
+            players.push({
+                name: name,
+                balance: balance,
+                profit: profit,
+                waste: waste,
+                active: true
+            });
+            
+            nameInput.value = '';
+            balanceInput.value = '';
+            profitInput.value = '';
+            wasteInput.value = '';
+            
+            displayPlayersTable();
+            calculate(); // Atualiza automaticamente o cálculo
+        }
+
+        function calculate() {
+            try {
+                // Filtra apenas players ativos
+                const activePlayers = players.filter(p => p.active);
+                
+                if (activePlayers.length < 2) {
+                    alert("É necessário pelo menos 2 jogadores ativos para calcular transferências");
+                    return;
+                }
+
+                // Aplica o profit e waste ao balance (soma profit e subtrai waste do balance)
+                const playersWithAdjustments = activePlayers.map(p => ({
+                    ...p,
+                    adjustedBalance: p.balance + (p.profit || 0) - (p.waste || 0)
+                }));
+
+                // Cálculo do total
+                const totalBalance = playersWithAdjustments.reduce((sum, p) => sum + p.adjustedBalance, 0);
+                
+                let transfers = [];
+                let balancePerPerson = 0;
+                let isLoss = false;
+                
+                if (totalBalance >= 0) {
+                    // Cálculo normal para lucro
+                    balancePerPerson = Math.floor(totalBalance / activePlayers.length);
+                    
+                    // Pré-cálculo de débitos e créditos
+                    const creditors = playersWithAdjustments.filter(p => p.adjustedBalance > balancePerPerson)
+                        .map(p => ({...p, toDistribute: p.adjustedBalance - balancePerPerson}))
+                        .sort((a, b) => b.toDistribute - a.toDistribute);
+                    
+                    const debtors = playersWithAdjustments.filter(p => p.adjustedBalance < balancePerPerson)
+                        .map(p => ({...p, toReceive: balancePerPerson - p.adjustedBalance}))
+                        .sort((a, b) => b.toReceive - a.toReceive);
+
+                    // Lógica de distribuição
+                    transfers = [];
+                    
+                    // 1. Primeiro credor paga na ordem: menor dívida primeiro, depois média, depois maior
+                    if (creditors.length > 0) {
+                        const mainCreditor = creditors[0];
+                        
+                        // Ordena devedores: menor dívida primeiro
+                        const orderedDebtors = [...debtors].sort((a, b) => a.toReceive - b.toReceive);
+                        
+                        for (const debtor of orderedDebtors) {
+                            if (mainCreditor.toDistribute <= 0) break;
+                            
+                            const amount = Math.min(mainCreditor.toDistribute, debtor.toReceive);
+                            if (amount > 0) {
+                                transfers.push({
+                                    from: mainCreditor.name,
+                                    to: debtor.name,
+                                    amount: amount
+                                });
+                                mainCreditor.toDistribute -= amount;
+                                debtor.toReceive -= amount;
+                            }
+                        }
+                    }
+
+                    // 2. Segundo credor (se existir) paga o restante para o maior devedor
+                    if (creditors.length > 1) {
+                        const secondaryCreditor = creditors[1];
+                        const biggestDebtor = debtors.find(d => d.toReceive > 0);
+                        
+                        if (biggestDebtor && secondaryCreditor.toDistribute > 0) {
+                            const amount = Math.min(secondaryCreditor.toDistribute, biggestDebtor.toReceive);
+                            if (amount > 0) {
+                                transfers.push({
+                                    from: secondaryCreditor.name,
+                                    to: biggestDebtor.name,
+                                    amount: amount
+                                });
+                                secondaryCreditor.toDistribute -= amount;
+                                biggestDebtor.toReceive -= amount;
+                            }
+                        }
+                    }
+                    
+                } else {
+                    // Lógica para prejuízo
+                    isLoss = true;
+                    const totalLoss = Math.abs(totalBalance);
+                    balancePerPerson = Math.floor(totalLoss / activePlayers.length);
+                    
+                    const sortedPlayers = [...playersWithAdjustments].sort((a, b) => a.adjustedBalance - b.adjustedBalance);
+                    
+                    transfers = [];
+                    
+                    const playerContributions = sortedPlayers.map(p => ({
+                        ...p,
+                        contribution: balancePerPerson + p.adjustedBalance // adjustedBalance é negativo
+                    }));
+                    
+                    const payers = playerContributions.filter(p => p.contribution > 0);
+                    const receivers = playerContributions.filter(p => p.contribution < 0)
+                        .map(p => ({...p, contribution: Math.abs(p.contribution)}));
+                    
+                    receivers.sort((a, b) => b.contribution - a.contribution);
+                    
+                    for (const payer of payers) {
+                        let remaining = payer.contribution;
+                        
+                        for (const receiver of receivers) {
+                            if (remaining <= 0 || receiver.contribution <= 0) continue;
+                            
+                            const amount = Math.min(remaining, receiver.contribution);
+                            if (amount > 0) {
+                                transfers.push({
+                                    from: payer.name,
+                                    to: receiver.name,
+                                    amount: amount
+                                });
+                                remaining -= amount;
+                                receiver.contribution -= amount;
+                            }
+                        }
+                    }
+                }
+
+                // Exibe resultados
+                displayResults(transfers, totalBalance, activePlayers.length, balancePerPerson, isLoss);
+                
+                // Salva no histórico
+                saveToHistory(transfers, totalBalance, activePlayers.length, balancePerPerson, isLoss);
+                
+            } catch (error) {
+                alert("Erro ao calcular transferências: " + error.message);
+                console.error(error);
+            }
+        }
+
+        function displayResults(transfers, totalBalance, numPeople, balancePerPerson, isLoss = false) {
+            const transfersContainer = document.getElementById('transfers');
+            const summaryContainer = document.getElementById('summary');
+            const resultDiv = document.getElementById('result');
+            const emptyResult = document.getElementById('empty-result');
+            
+            emptyResult.style.display = 'none';
+            resultDiv.style.display = 'block';
+            
+            transfersContainer.innerHTML = '<h3 style="margin: 5px 0 10px 0; font-size: 1.1em;">Transferências necessárias:</h3>';
+            
+            if (transfers.length === 0) {
+                transfersContainer.innerHTML += '<p style="margin: 5px 0; font-size: 0.9em;">Nenhuma transferência necessária - o loot já está igualmente distribuído.</p>';
+            } else {
+                transfers.forEach(t => {
+                    const transferDiv = document.createElement('div');
+                    transferDiv.className = 'transfer';
+                    transferDiv.innerHTML = `
+                        <div style="margin-bottom: 3px;">${t.from} deve pagar ${formatNumber(t.amount)} gps para ${t.to}.</div>
+                        <span class="transfer-command" onclick="copyToClipboard(this)">transfer ${t.amount} to ${t.to}</span>
+                    `;
+                    transfersContainer.appendChild(transferDiv);
+                });
+            }
+            
+            // Mostra também o total de profit e waste
+            const totalProfit = players.reduce((sum, p) => sum + (p.profit || 0), 0);
+            const totalWaste = players.reduce((sum, p) => sum + (p.waste || 0), 0);
+            
+            summaryContainer.innerHTML = `
+                <p><strong>Total balance:</strong> ${formatNumber(totalBalance + totalWaste - totalProfit)} gp</p>
+                <p><strong>Profit extra (+):</strong> ${formatNumber(totalProfit)} gp</p>
+                <p><strong>Waste extra(-):</strong> ${formatNumber(totalWaste)} gp</p>
+                <p><strong>Balance ajustado:</strong> ${formatNumber(totalBalance)} gp ${isLoss ? '(PREJUÍZO)' : ''}</p>
+                <p><strong>Pessoas na party:</strong> ${numPeople}</p>
+                <p><strong>${isLoss ? 'Prejuízo por pessoa:' : 'Balance por pessoa:'}</strong> ${formatNumber(balancePerPerson)} gp</p>
+            `;
+        }
+        
+        function saveToHistory(transfers, totalBalance, numPeople, balancePerPerson, isLoss) {
+            try {
+                // Cria um ID único para este cálculo
+                currentCalculationId = Date.now().toString();
+                
+                // Prepara os dados para salvar
+                const historyEntry = {
+                    id: currentCalculationId,
+                    date: new Date().toLocaleString(),
+                    transfers: transfers,
+                    totalBalance: totalBalance,
+                    numPeople: numPeople,
+                    balancePerPerson: balancePerPerson,
+                    isLoss: isLoss,
+                    players: players.map(p => ({
+                        name: p.name,
+                        balance: p.balance,
+                        profit: p.profit,
+                        waste: p.waste,
+                        active: p.active
+                    })),
+                    totalProfit: players.reduce((sum, p) => sum + (p.profit || 0), 0),
+                    totalWaste: players.reduce((sum, p) => sum + (p.waste || 0), 0)
+                };
+                
+                // Obtém o histórico atual ou cria um novo array
+                let history = JSON.parse(localStorage.getItem('tibiaPartyHistory')) || [];
+                
+                // Adiciona a nova entrada no início do array
+                history.unshift(historyEntry);
+                
+                // Limita o histórico aos últimos 50 registros para não ocupar muito espaço
+                if (history.length > 50) {
+                    history = history.slice(0, 50);
+                }
+                
+                // Salva no Local Storage
+                localStorage.setItem('tibiaPartyHistory', JSON.stringify(history));
+                
+                // Atualiza a exibição do histórico
+                loadHistory();
+                
+            } catch (error) {
+                console.error('Erro ao salvar no histórico:', error);
+            }
+        }
+        
+        function loadHistory() {
+            try {
+                const historyTableBody = document.getElementById('historyTableBody');
+                historyTableBody.innerHTML = '';
+                
+                const history = JSON.parse(localStorage.getItem('tibiaPartyHistory')) || [];
+                
+                if (history.length === 0) {
+                    historyTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Nenhum registro no histórico</td></tr>';
+                    return;
+                }
+                
+                history.forEach(entry => {
+                    const row = document.createElement('tr');
+                    if (entry.id === currentCalculationId) {
+                        row.classList.add('current-calculation');
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${entry.date}</td>
+                        <td>${formatNumber(entry.totalBalance)} gp ${entry.isLoss ? '(PREJUÍZO)' : ''}</td>
+                        <td>${entry.numPeople}</td>
+                        <td>
+                            <button onclick="viewHistoryEntry('${entry.id}')" class="small-btn">Ver</button>
+                            <button onclick="deleteHistoryEntry('${entry.id}')" class="small-btn clear">X</button>
+                        </td>
+                    `;
+                    
+                    historyTableBody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+            }
+        }
+        
+        function viewHistoryEntry(entryId) {
+            const history = JSON.parse(localStorage.getItem('tibiaPartyHistory')) || [];
+            const entry = history.find(e => e.id === entryId);
+            
+            if (!entry) {
+                alert('Registro não encontrado no histórico');
+                return;
+            }
+            
+            // Define os players atuais como os do histórico
+            players = entry.players.map(p => ({
+                ...p,
+                lineCount: 0 // Adiciona propriedades que podem estar faltando
+            }));
+            
+            // Atualiza a tabela de players
+            displayPlayersTable();
+            
+            // Exibe os resultados
+            displayResults(entry.transfers, entry.totalBalance, entry.numPeople, entry.balancePerPerson, entry.isLoss);
+            
+            // Rola para cima para mostrar os resultados
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+            
+            // Marca como cálculo atual
+            currentCalculationId = entryId;
+            loadHistory(); // Atualiza a tabela para destacar este item
+        }
+        
+        function deleteHistoryEntry(entryId) {
+            if (!confirm('Tem certeza que deseja remover este registro do histórico?')) {
+                return;
+            }
+            
+            try {
+                let history = JSON.parse(localStorage.getItem('tibiaPartyHistory')) || [];
+                history = history.filter(e => e.id !== entryId);
+                localStorage.setItem('tibiaPartyHistory', JSON.stringify(history));
+                loadHistory();
+                
+                // Se estivermos visualizando o registro que foi deletado, limpa a tela
+                if (currentCalculationId === entryId) {
+                    document.getElementById('result').style.display = 'none';
+                    document.getElementById('empty-result').style.display = 'block';
+                    currentCalculationId = null;
+                }
+                
+            } catch (error) {
+                console.error('Erro ao deletar do histórico:', error);
+            }
+        }
+        
+        function clearHistory() {
+            if (!confirm('Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+            
+            try {
+                localStorage.removeItem('tibiaPartyHistory');
+                loadHistory();
+                
+                // Se estivermos visualizando algum registro, limpa a tela
+                if (currentCalculationId) {
+                    document.getElementById('result').style.display = 'none';
+                    document.getElementById('empty-result').style.display = 'block';
+                    currentCalculationId = null;
+                }
+                
+            } catch (error) {
+                console.error('Erro ao limpar histórico:', error);
+            }
+        }
+
+        function clearTextarea() {
+            document.getElementById('sessionData').value = '';
+            document.getElementById('playersTableContainer').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('empty-result').style.display = 'block';
+            players = [];
+            currentCalculationId = null;
+        }
+
+        function cleanNumber(numStr) {
+            return parseInt(numStr.replace(/[.,]/g, '')) || 0;
+        }
+        
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+        
+        function copyToClipboard(element) {
+            const text = element.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = element.textContent;
+                element.textContent = "Copiado!";
+                element.style.backgroundColor = "#d4edda";
+                element.style.color = "#155724";
+                setTimeout(() => {
+                    element.textContent = originalText;
+                    element.style.backgroundColor = "#f9ebea";
+                    element.style.color = "#e74c3c";
+                }, 1000);
+            }).catch(err => {
+                console.error('Erro ao copiar texto: ', err);
+            });
+        }
+
+        // Atualiza a tabela quando a tela for redimensionada
+        window.addEventListener('resize', function() {
+            if (document.getElementById('playersTableContainer').style.display !== 'none') {
+                displayPlayersTable();
+            }
+        });
+    </script>
+</body>
+</html>
